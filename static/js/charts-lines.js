@@ -68,4 +68,43 @@ const lineConfig = {
 
 // change this to the id of your chart element in HMTL
 const lineCtx = document.getElementById('line')
+
+// Cargar datos dinámicos desde el template Django
+const chartDataElement = document.getElementById('chart-data')
+if (chartDataElement) {
+  const dynamicData = JSON.parse(chartDataElement.textContent)
+  
+  // Actualizar configuración con datos reales
+  lineConfig.data.labels = dynamicData.labels
+  lineConfig.data.datasets = [
+    {
+      label: 'Reseñas Acumuladas',
+      backgroundColor: '#0694a2',
+      borderColor: '#0694a2',
+      data: dynamicData.data,
+      fill: false,
+      tension: 0.4, // Línea suave
+    }
+  ]
+  
+  // Actualizar opciones
+  lineConfig.options.scales = {
+    x: {
+      display: true,
+      title: {
+        display: true,
+        text: 'Fechas'
+      }
+    },
+    y: {
+      display: true,
+      title: {
+        display: true,
+        text: 'Total de Reseñas'
+      },
+      beginAtZero: true
+    }
+  }
+}
+
 window.myLine = new Chart(lineCtx, lineConfig)

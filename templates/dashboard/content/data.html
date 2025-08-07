@@ -1,3 +1,4 @@
+{% load humanize %}
 <main class="h-full overflow-y-auto">
   <div class="container px-6 mx-auto grid">
     <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
@@ -11,79 +12,40 @@
     <!-- Indicadores -->
     <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
 
-      <!-- Indicador -->
-      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-        <div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z">
-            </path>
-          </svg>
-        </div>
-        <div>
-          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-            Número total de respuestas
-          </p>
-          <!-- Indicador 1 -->
-          <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
-            {{ total_responses }}
-          </p>
-        </div>
-      </div>
+      {# Indicadores dinámicos usando etiquetas de plantilla #}
+      {% comment %}Ciclo para alternar colores de icono{% endcomment %}
 
-      <!-- Indicador 2: Promedio de calificación general -->
+      {% for ind in indicators %}
       <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-        <div class="p-3 mr-4 text-yellow-500 bg-yellow-100 rounded-full dark:text-yellow-100 dark:bg-yellow-500">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z" />
-          </svg>
+        <div class="p-3 mr-4 {% cycle 'text-orange-500 bg-orange-100 dark:text-orange-100 dark:bg-orange-500' 'text-yellow-500 bg-yellow-100 dark:text-yellow-100 dark:bg-yellow-500' 'text-blue-500 bg-blue-100 dark:text-blue-100 dark:bg-blue-500' 'text-teal-500 bg-teal-100 dark:text-teal-100 dark:bg-teal-500' %} rounded-full">
+          {{ ind.icon|safe }}
         </div>
         <div>
           <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-            Promedio de calificación
+            {{ ind.label }}
           </p>
-          <!-- Indicador 2 -->
           <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
-            {{ average_rating }}
+            {% if ind.type == 'int' %}
+              {{ ind.value|intcomma }}
+            {% elif ind.type == 'float' %}
+              {{ ind.value|floatformat:1 }}
+            {% elif ind.type == 'percent' %}
+              {{ ind.value|floatformat:1 }}%
+            {% else %}
+              {{ ind.value }}
+            {% endif %}
           </p>
         </div>
       </div>
+      {% endfor %}
 
-      <!-- Indicador 3: Distribución de calificaciones -->
-      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-        <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M2 10a8 8 0 1116 0A8 8 0 012 10zm8-3a1 1 0 100 2 1 1 0 000-2zm0 4a1 1 0 100 2 1 1 0 000-2zm0 4a1 1 0 100 2 1 1 0 000-2z" />
-          </svg>
-        </div>
-        <div>
-          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-            Reseñas este mes
-          </p>
-          <!-- Indicador 3 -->
-          <p class="text-base font-semibold text-gray-700 dark:text-gray-200">
-            <span title="Reseñas en agosto 2025">🗓️ {{ reviews_this_month }}</span>
-          </p>
-        </div>
-      </div>
 
-      <!-- Indicador 4: Clientes satisfechos -->
-      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-        <div class="p-3 mr-4 text-teal-500 bg-teal-100 rounded-full dark:text-teal-100 dark:bg-teal-500">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.93 6.36l-4.24 4.24a1 1 0 01-1.42 0l-2.12-2.12a1 1 0 111.42-1.42l1.41 1.41 3.53-3.53a1 1 0 111.42 1.42z"/>
-          </svg>
-        </div>
-        <div>
-          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-            Clientes satisfechos
-          </p>
-          <!-- Indicador 4 -->
-          <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
-            {{ percent_satisfied }}%
-          </p>
-        </div>
-      </div>
+
+
+
+
+
+
 
     </div>
 
@@ -97,26 +59,35 @@
             <thead>
               <tr
                 class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                <th class="px-4 py-3">Columna 1</th>
-                <th class="px-4 py-3">Columna 2</th>
+                <th class="px-4 py-3">Calificación</th>
+                <th class="px-4 py-3">Fecha</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
 
-              <!-- START - respuestas -->
-              <tr class="text-gray-700 dark:text-gray-400">
+              {# Filas dinámicas de reseñas usando etiquetas de plantilla #}
+              {% for review in reviews %}
+              <tr class="{% cycle 'bg-white dark:bg-gray-800' 'bg-gray-50 dark:bg-gray-700' %} text-gray-700 dark:text-gray-400">
                 <td class="px-4 py-3 text-sm">
-                  <!-- START - fila.valor1 -->
-                  fila.valor1
-                  <!-- END - fila.valor1 -->
+                  {# Mostrar estrellas según rating #}
+                  {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= review.rating %}
+                      <span class="text-yellow-400">⭐</span>
+                    {% else %}
+                      <span class="text-gray-300 dark:text-gray-600">☆</span>
+                    {% endif %}
+                  {% endfor %}
+                  <span class="ml-2 text-sm font-medium">({{ review.rating }}/5)</span>
                 </td>
                 <td class="px-4 py-3 text-sm">
-                  <!-- START - fila.valor2 -->
-                  fila.valor2
-                  <!-- END - fila.valor2 -->
+                  {{ review.formatted_date }}
                 </td>
               </tr>
-              <!-- END - respuestas -->
+              {% empty %}
+              <tr class="text-gray-700 dark:text-gray-400">
+                <td colspan="2" class="px-4 py-3 text-sm text-center">No hay reseñas disponibles</td>
+              </tr>
+              {% endfor %}
 
             </tbody>
           </table>
@@ -124,10 +95,21 @@
         <div
           class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
           <span class="flex items-center col-span-3">
-            <!-- START - # total de respuestas -->
-            XXX
-            <!-- END - # total de respuestas -->
-            respuestas
+            Mostrando {{ reviews|length }} de {{ total_responses|intcomma }} 
+            {% if total_responses == 1 %}respuesta{% else %}respuestas{% endif %}
+          </span>
+          <span class="col-span-2 flex items-center justify-center">
+            <span class="text-xs text-gray-600 dark:text-gray-400">
+              Promedio reciente: <strong>{{ recent_avg_rating|floatformat:1 }}/5</strong>
+            </span>
+          </span>
+          <span class="flex items-center col-span-4 justify-end">
+            <span class="px-2 py-1 text-xs leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100 mr-2">
+              {{ recent_satisfaction }}% satisfacción
+            </span>
+            <span class="px-2 py-1 text-xs leading-tight text-blue-700 bg-blue-100 rounded-full dark:bg-blue-700 dark:text-blue-100">
+              Últimas {{ reviews|length }}
+            </span>
           </span>
         </div>
       </div>
@@ -137,9 +119,25 @@
       <div class="row-span-1 grid gap-6 mb-8 md:grid-cols-12">
         <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
           <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
-            Título del gráfico
+            Reseñas Acumuladas
           </h4>
           <canvas id="line"></canvas>
+          
+          {# Datos dinámicos para el gráfico generados con etiquetas Django #}
+          <script type="application/json" id="chart-data">
+            {
+              "labels": [
+                {% for item in chart_data %}
+                  "{{ item.date }}"{% if not forloop.last %},{% endif %}
+                {% endfor %}
+              ],
+              "data": [
+                {% for item in chart_data %}
+                  {{ item.count }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+              ]
+            }
+          </script>
         </div>
       </div>
       <!-- END - Gráficos -->
