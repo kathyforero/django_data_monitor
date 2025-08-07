@@ -17,7 +17,6 @@ def index(request):
     # Preparar datos para los indicadores
     ratings = []
     names = []
-    trivial_count = 0
     substantial_count = 0
 
     for key, review in posts.items():
@@ -28,9 +27,7 @@ def index(request):
         if rating is not None:
             ratings.append(rating)
 
-        if len(message.strip()) < 10:
-            trivial_count += 1
-        else:
+        if len(message.strip()) > 10:
             substantial_count += 1
 
         if name:
@@ -42,22 +39,36 @@ def index(request):
     # 2. Mensajes sustanciales vs triviales
     if total_responses > 0:
         substantial_percent = round((substantial_count / total_responses) * 100, 2)
-        trivial_percent = round((trivial_count / total_responses) * 100, 2)
     else:
-        substantial_percent = trivial_percent = 0
+        substantial_percent = 0
 
     # 3. Frecuencia de participación por usuario
     name_counts = Counter(names)
     repeated_users = sum(1 for count in name_counts.values() if count > 1)
     repeated_user_percent = round((repeated_users / len(name_counts)) * 100, 2) if name_counts else 0
 
+    # 4. Reseñas con sus respectivos usuarios
+    reviews = []
+    for key, review in posts.items():
+        reviews.append({
+            'name': review.get('name', ''),
+            'message': review.get('message', '')
+        })
+
+    # 5. Número de reseñas por cantidad de estrellas
+    rating_counts = [0, 0, 0, 0, 0]  # índices 0 a 4 representan 1 a 5 estrellas
+    for rating in ratings:
+        if 1 <= rating <= 5:
+            rating_counts[rating - 1] += 1
+
     data = {
         'title': "Landing Page' Dashboard",
         'total_responses': total_responses,
         'avg_rating': avg_rating,
         'substantial_percent': substantial_percent,
-        'trivial_percent': trivial_percent,
         'repeated_user_percent': repeated_user_percent,
+        'reviews': reviews,
+        'ratings_by_star': rating_counts,
     }
 
     return render(request, 'dashboard/index.html', data)
