@@ -4,9 +4,10 @@ import requests
 from django.conf import settings
 from datetime import datetime
 from django.utils.safestring import mark_safe
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 @login_required
+@permission_required('dashboard.index_viewer', raise_exception=True)
 def index(request):
     response = requests.get(settings.API_URL)  # URL de la API
     posts = response.json()  # Convertir la respuesta a JSON
