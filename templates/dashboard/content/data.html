@@ -1,0 +1,148 @@
+{% load humanize %}
+<main class="h-full overflow-y-auto">
+  <div class="container px-6 mx-auto grid">
+    <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+
+      <!-- START - título secundario -->
+      {{ title }}
+      <!-- END - título secundario -->
+
+    </h2>
+
+    <!-- Indicadores -->
+    <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+
+      {# Indicadores dinámicos usando etiquetas de plantilla #}
+      {% comment %}Ciclo para alternar colores de icono{% endcomment %}
+
+      {% for ind in indicators %}
+      <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+        <div class="p-3 mr-4 {% cycle 'text-orange-500 bg-orange-100 dark:text-orange-100 dark:bg-orange-500' 'text-yellow-500 bg-yellow-100 dark:text-yellow-100 dark:bg-yellow-500' 'text-blue-500 bg-blue-100 dark:text-blue-100 dark:bg-blue-500' 'text-teal-500 bg-teal-100 dark:text-teal-100 dark:bg-teal-500' %} rounded-full">
+          {{ ind.icon|safe }}
+        </div>
+        <div>
+          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            {{ ind.label }}
+          </p>
+          <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+            {% if ind.type == 'int' %}
+              {{ ind.value|intcomma }}
+            {% elif ind.type == 'float' %}
+              {{ ind.value|floatformat:1 }}
+            {% elif ind.type == 'percent' %}
+              {{ ind.value|floatformat:1 }}%
+            {% else %}
+              {{ ind.value }}
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+
+
+
+
+
+
+
+
+
+    </div>
+
+    <div class="grid gap-6 mb-8 md:grid-cols-2">
+
+      <!-- BEGIN - Datos -->
+      <div class="row-span-1 w-full overflow-hidden rounded-lg shadow-xs mb-6">
+
+        <div class="w-full overflow-x-auto">
+          <table class="w-full whitespace-no-wrap">
+            <thead>
+              <tr
+                class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+                <th class="px-4 py-3">Calificación</th>
+                <th class="px-4 py-3">Fecha</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+
+              {# Filas dinámicas de reseñas usando etiquetas de plantilla #}
+              {% for review in reviews %}
+              <tr class="{% cycle 'bg-white dark:bg-gray-800' 'bg-gray-50 dark:bg-gray-700' %} text-gray-700 dark:text-gray-400">
+                <td class="px-4 py-3 text-sm">
+                  {# Mostrar estrellas según rating #}
+                  {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= review.rating %}
+                      <span class="text-yellow-400">⭐</span>
+                    {% else %}
+                      <span class="text-gray-300 dark:text-gray-600">☆</span>
+                    {% endif %}
+                  {% endfor %}
+                  <span class="ml-2 text-sm font-medium">({{ review.rating }}/5)</span>
+                </td>
+                <td class="px-4 py-3 text-sm">
+                  {{ review.formatted_date }}
+                </td>
+              </tr>
+              {% empty %}
+              <tr class="text-gray-700 dark:text-gray-400">
+                <td colspan="2" class="px-4 py-3 text-sm text-center">No hay reseñas disponibles</td>
+              </tr>
+              {% endfor %}
+
+            </tbody>
+          </table>
+        </div>
+        <div
+          class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
+          <span class="flex items-center col-span-3">
+            Mostrando {{ reviews|length }} de {{ total_responses|intcomma }} 
+            {% if total_responses == 1 %}respuesta{% else %}respuestas{% endif %}
+          </span>
+          <span class="col-span-2 flex items-center justify-center">
+            <span class="text-xs text-gray-600 dark:text-gray-400">
+              Promedio reciente: <strong>{{ recent_avg_rating|floatformat:1 }}/5</strong>
+            </span>
+          </span>
+          <span class="flex items-center col-span-4 justify-end">
+            <span class="px-2 py-1 text-xs leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100 mr-2">
+              {{ recent_satisfaction }}% satisfacción
+            </span>
+            <span class="px-2 py-1 text-xs leading-tight text-blue-700 bg-blue-100 rounded-full dark:bg-blue-700 dark:text-blue-100">
+              Últimas {{ reviews|length }}
+            </span>
+          </span>
+        </div>
+      </div>
+      <!-- END - Datos -->
+
+      <!-- BEGIN - Gráficos -->
+      <div class="row-span-1 grid gap-6 mb-8 md:grid-cols-12">
+        <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+          <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
+            Reseñas Acumuladas
+          </h4>
+          <canvas id="line"></canvas>
+          
+          {# Datos dinámicos para el gráfico generados con etiquetas Django #}
+          <script type="application/json" id="chart-data">
+            {
+              "labels": [
+                {% for item in chart_data %}
+                  "{{ item.date }}"{% if not forloop.last %},{% endif %}
+                {% endfor %}
+              ],
+              "data": [
+                {% for item in chart_data %}
+                  {{ item.count }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+              ]
+            }
+          </script>
+        </div>
+      </div>
+      <!-- END - Gráficos -->
+
+    </div>
+
+  </div>
+</main>
